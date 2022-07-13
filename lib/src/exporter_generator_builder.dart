@@ -12,6 +12,7 @@ class ExporterGeneratorBuilder implements Builder {
 
   @override
   Future<void> build(BuildStep buildStep) async {
+    ExportsBuilder.packageName = buildStep.inputId.package;
     final resolver = buildStep.resolver;
     if (!await resolver.isLibrary(buildStep.inputId)) return;
     final element = await buildStep.inputLibrary;
@@ -21,7 +22,6 @@ class ExporterGeneratorBuilder implements Builder {
       for (var member in lib) {member.name},
     ];
     if (annotated.isNotEmpty) {
-      ExportsBuilder.packageName = buildStep.inputId.package;
       await buildStep.writeAsString(
           buildStep.inputId.changeExtension('.exports'), annotated.join(','));
     }

@@ -4,25 +4,22 @@ import 'package:glob/glob.dart';
 /// the ExportsBuilder will create the file to
 /// export all dart files
 class ExportsBuilder implements Builder {
+  static var packageName = '';
+  static const generatedFileName = 'exports.dart';
+
   @override
   Map<String, List<String>> get buildExtensions {
     return {
-      r'$lib$': ['export.dart']
+      r'$lib$': [generatedFileName]
     };
   }
 
-  static var packageName = "export";
   @override
   Future<void> build(BuildStep buildStep) async {
     final exports = buildStep.findAssets(Glob('**/*.exports'));
 
     final expList = <String>[];
-    final content = [
-      "// run this to reset your file: dart run build_runner build",
-      "// remenber to format this file, you can use: dart format",
-      "// publish your package hint: dart pub publish --dry-run",
-      "// if you want to update your packages on power: dart pub upgrade --major-versions",
-    ];
+    final content = ["//! AUTO GENERATE FILE, DONT MODIFY!!"];
     await for (var exportLibrary in exports) {
       final exportUri = exportLibrary.changeExtension('.dart').uri;
       if (exportUri.toString().substring(0, 5) != "asset") {
@@ -39,10 +36,14 @@ class ExportsBuilder implements Builder {
     }
 
     content.addAll(expList);
+    content.insert(0, '// $packageName');
     if (content.isNotEmpty) {
       await buildStep.writeAsString(
-          AssetId(buildStep.inputId.package, 'lib/export.dart'),
+          AssetId(buildStep.inputId.package, 'lib/$generatedFileName'),
           content.join('\n'));
     }
+    print('[AUTO_EXPORTER] add to your library main file $packageName.dart'
+        '\n'
+        'export \'package:$packageName/exports.dart\';');
   }
 }
