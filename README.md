@@ -13,7 +13,8 @@ See How to use it
 first:
 ```
 dev_dependencies:
-  auto_exporter: ^<lastest version code>
+  auto_exporter:
+    git: git@github.com:ankiimation/auto_exporter.git
   build_runner: ^2.1.0
   build_test: ^2.1.0
 ```
@@ -23,7 +24,8 @@ second run:
  dart run build_runner build  # Dart SDK
  flutter pub run build_runner build  # Flutter SDK
 ```
-
+third add to your library main file ${packageName}.dart
+```export 'package:${packageName}/exports.dart';```
 wait a minute... and you get the export file
 
 #### on the last
