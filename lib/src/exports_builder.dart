@@ -1,3 +1,4 @@
+import 'package:auto_exporter/src/exporter_generator_builder.dart';
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
 
@@ -16,21 +17,16 @@ class ExportsBuilder implements Builder {
 
   @override
   Future<void> build(BuildStep buildStep) async {
-    final exports = buildStep.findAssets(Glob('**/*.exports'));
-
+    final exports = buildStep
+        .findAssets(Glob('**/*${ExporterGeneratorBuilder.exportExtension}'));
     final expList = <String>[];
     final content = ["//! AUTO GENERATE FILE, DONT MODIFY!!"];
-    await for (var exportLibrary in exports) {
+    await for (final exportLibrary in exports) {
       final exportUri = exportLibrary.changeExtension('.dart').uri;
       if (exportUri.toString().substring(0, 5) != "asset") {
         if (exportUri.toString() != 'package:$packageName/$packageName.dart') {
-          final expStr = "export '$exportUri';";
+          final expStr = getExportString(exportUri);
           expList.add(expStr);
-
-          // if (content[2] == "") {
-          //   packageName = expStr.split("/")[0].split(":")[1];
-          //   content[2] = "// " + packageName;
-          // }
         }
       }
     }
@@ -45,5 +41,29 @@ class ExportsBuilder implements Builder {
     print('[AUTO_EXPORTER] add to your library main file $packageName.dart'
         '\n'
         'export \'package:$packageName/exports.dart\';');
+  }
+
+  String getExportString(Uri exportUri) {
+    final expStr = "export '$exportUri'${getHiddenClass(exportUri)};";
+    return expStr;
+  }
+
+  String getHiddenClass(Uri exportUri) {
+    final hiddenElements = ExporterGeneratorBuilder.hiddenElements;
+    final Set<String> hiddenClasses = {};
+    for (final hiddenElement in hiddenElements) {
+      if (hiddenElement.source?.uri == exportUri) {
+        final className = hiddenElement.name;
+        if (className != null) {
+          hiddenClasses.add(className);
+        }
+      }
+    }
+    String result = '';
+    if (hiddenClasses.isNotEmpty) {
+      result = ' hide ';
+      result += hiddenClasses.join(',');
+    }
+    return result;
   }
 }
