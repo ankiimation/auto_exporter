@@ -21,6 +21,7 @@ class ExportsBuilder implements Builder {
         .findAssets(Glob('**/*${ExporterGeneratorBuilder.exportExtension}'));
     final expList = <String>[];
     final content = ["//! AUTO GENERATE FILE, DONT MODIFY!!"];
+    content.add("part of '$packageName.dart'");
     await for (final exportLibrary in exports) {
       final exportUri = exportLibrary.changeExtension('.dart').uri;
       if (exportUri.toString().substring(0, 5) != "asset") {
@@ -40,7 +41,7 @@ class ExportsBuilder implements Builder {
     }
     print('[AUTO_EXPORTER] add to your library main file $packageName.dart'
         '\n'
-        'export \'package:$packageName/exports.dart\';');
+        'part \'package:$packageName/exports.dart\';');
   }
 
   String getExportString(Uri exportUri) {

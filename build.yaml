@@ -3,8 +3,16 @@ targets:
     builders:
       flutter_auto_export_first:
         enabled: true
+        generate_for:
+          exclude:
+            - test
+            - example
       flutter_auto_export_second:
         enabled: true
+        generate_for:
+          exclude:
+            - test
+            - example
 
 builders:
   flutter_auto_export_first:
@@ -17,7 +25,7 @@ builders:
   flutter_auto_export_second:
     import: "package:auto_exporter/auto_exporter.dart"
     builder_factories: ["exportsBuilder"]
-    build_extensions: { "$lib$": [".exports.dart"] }
+    build_extensions: { "$lib$": ["exports.dart"] }
     auto_apply: dependents
     build_to: source
     applies_builders: ["source_gen|combining_builder"]

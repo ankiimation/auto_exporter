@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
-import 'package:auto_exporter/auto_exporter.dart';
 import 'package:auto_exporter/src/exports_builder.dart';
+import 'package:auto_exporter_annotation/auto_exporter_annotation.dart';
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -12,14 +12,16 @@ class ExporterGeneratorBuilder implements Builder {
   static final List<Element> hiddenElements = [];
   @override
   final buildExtensions = const {
-    '.dart': ['.exports']
+    '.dart': [exportExtension]
   };
 
   @override
   Future<void> build(BuildStep buildStep) async {
     ExportsBuilder.packageName = buildStep.inputId.package;
+
     final resolver = buildStep.resolver;
     if (!await resolver.isLibrary(buildStep.inputId)) return;
+
     final libraryElements = await buildStep.inputLibrary;
 
     final elements = [libraryElements, ...libraryElements.topLevelElements];
